@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxFinder DApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+</head>
+<body>
+    <h1>Find the Maximum Number</h1>
+
+    <!-- Input field to add numbers -->
+    <input type="number" id="numberInput" placeholder="Enter a number">
+    <button onclick="addNumber()">Add Number</button>
+
+    <!-- Button to find the maximum number -->
+    <button onclick="findMax()">Find Max</button>
+
+    <!-- Display the maximum number -->
+    <h3 id="maxNumber"></h3>
+
+    <script>
+        // Contract address and ABI from Remix deployment
+        const contractAddress = '0x851d8533E4251a37565C70958CAfD257536eAe9B'; // Replace with your contract address from Ganache
+        const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_number",
+				"type": "uint256"
+			}
+		],
+		"name": "addNumber",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "findMax",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "numbers",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        // Function to initialize the contract
+        let provider, signer, maxFinderContract;
+
+        async function initContract() {
+            if (!provider) {
+                // Connect to the Ethereum provider (HTTP provider from Ganache)
+                provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:7545');
+                signer = provider.getSigner(0); // Using the first account from Ganache
+                maxFinderContract = new ethers.Contract(contractAddress, contractABI, signer);
+            }
+        }
+
+        // Add a number to the contract
+        async function addNumber() {
+            await initContract(); // Ensure contract is initialized
+            const numberInput = document.getElementById('numberInput').value;
+            if (!numberInput) {
+                alert("Please enter a number!");
+                return;
+            }
+            console.log(signer);
+            console.log(maxFinderContract);
+            try {
+                const tx = await maxFinderContract.addNumber(parseInt(numberInput));
+                await tx.wait();
+                alert("Number added successfully!");
+            } catch (error) {
+                console.error(error);
+                alert("Failed to add number.");
+            }
+        }
+
+        // Find the maximum number
+        async function findMax() {
+            await initContract(); // Ensure contract is initialized
+            try {
+                const max = await maxFinderContract.findMax();
+                document.getElementById('maxNumber').innerText = "Maximum Number: " + max.toString();
+            } catch (error) {
+                console.error(error);
+                alert("Failed to find the maximum number.");
+            }
+        }
+    </script>
+</body>
+</html>
